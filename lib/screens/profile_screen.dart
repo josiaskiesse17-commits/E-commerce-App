@@ -8,10 +8,10 @@ final userProfileProvider =
     Provider<UserProfile>(
   (ref) {
     return const UserProfile(
-      name: 'John Doe',
-      email: 'john@example.com',
+      name: 'JosTech',
+      email: 'jostech@gmail.com',
       avatarUrl:
-          'https://i.pravatar.cc/300',
+          // 'https://i.pravatar.cc/300',
     );
   },
 );
