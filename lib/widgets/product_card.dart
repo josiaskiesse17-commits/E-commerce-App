@@ -15,7 +15,10 @@ class ProductCard extends ConsumerWidget {
   });
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(
+    BuildContext context,
+    WidgetRef ref,
+  ) {
     final favorites =
         ref.watch(favoritesProvider);
 
@@ -29,7 +32,8 @@ class ProductCard extends ConsumerWidget {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (_) => ProductDetailScreen(
+              builder: (_) =>
+                  ProductDetailScreen(
                 product: product,
               ),
             ),
@@ -71,13 +75,26 @@ class ProductCard extends ConsumerWidget {
                                 product.id,
                               );
                         },
-                        icon: Icon(
-                          isFavorite
-                              ? Icons.favorite
-                              : Icons.favorite_border,
-                          color: isFavorite
-                              ? Colors.red
-                              : Colors.black,
+                        icon: AnimatedScale(
+                          scale:
+                              isFavorite
+                                  ? 1.2
+                                  : 1.0,
+                          duration:
+                              const Duration(
+                            milliseconds: 200,
+                          ),
+                          curve:
+                              Curves.easeOutBack,
+                          child: Icon(
+                            isFavorite
+                                ? Icons.favorite
+                                : Icons
+                                    .favorite_border,
+                            color: isFavorite
+                                ? Colors.red
+                                : Colors.black,
+                          ),
                         ),
                       ),
                     ),
@@ -145,8 +162,9 @@ class ProductCard extends ConsumerWidget {
                           ),
                         );
                       },
-                      child:
-                          const Text('Add to cart'),
+                      child: const Text(
+                        'Add to cart',
+                      ),
                     ),
                   ),
                 ],

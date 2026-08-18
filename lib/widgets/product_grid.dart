@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../providers/product_providers.dart';
 
+import '../providers/product_providers.dart';
 import '../providers/filter_provider.dart';
 import 'product_card.dart';
 
@@ -25,8 +25,7 @@ class ProductGrid extends ConsumerWidget {
 
       error: (error, stackTrace) => Center(
         child: Column(
-          mainAxisSize:
-              MainAxisSize.min,
+          mainAxisSize: MainAxisSize.min,
           children: [
             const Icon(
               Icons.error_outline,
@@ -61,8 +60,7 @@ class ProductGrid extends ConsumerWidget {
         }
 
         return GridView.builder(
-          padding:
-              const EdgeInsets.all(12),
+          padding: const EdgeInsets.all(12),
           gridDelegate:
               const SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: 2,
@@ -71,9 +69,36 @@ class ProductGrid extends ConsumerWidget {
             childAspectRatio: 0.65,
           ),
           itemCount: products.length,
+
           itemBuilder: (_, index) {
-            return ProductCard(
-              product: products[index],
+            return TweenAnimationBuilder<double>(
+              tween: Tween(
+                begin: 0,
+                end: 1,
+              ),
+              duration: Duration(
+                milliseconds: 300 + (index * 50),
+              ),
+              builder: (
+                context,
+                value,
+                child,
+              ) {
+                return Opacity(
+                  opacity: value,
+                  child: Transform.translate(
+                    offset: Offset(
+                      0,
+                      20 * (1 - value),
+                    ),
+                    child: child,
+                  ),
+                );
+              },
+
+              child: ProductCard(
+                product: products[index],
+              ),
             );
           },
         );
