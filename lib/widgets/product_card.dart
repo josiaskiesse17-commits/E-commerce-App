@@ -6,7 +6,7 @@ import '../providers/cart_provider.dart';
 import '../providers/favorites_provider.dart';
 import '../screens/product_detail_screen.dart';
 
-class ProductCard extends ConsumerWidget {
+class ProductCard extends ConsumerStatefulWidget {
   final Product product;
 
   const ProductCard({
@@ -15,15 +15,51 @@ class ProductCard extends ConsumerWidget {
   });
 
   @override
+  ConsumerState<ProductCard> createState() =>
+      _ProductCardState();
+}
+
+class _ProductCardState
+    extends ConsumerState<ProductCard> {
+  bool _addedToCart = false;
+
+  void _addToCart() {
+    ref
+        .read(cartProvider.notifier)
+        .addProduct(widget.product);
+
+    setState(() {
+      _addedToCart = true;
+    });
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Added to cart'),
+        duration: Duration(seconds: 1),
+      ),
+    );
+
+    Future.delayed(
+      const Duration(milliseconds: 1200),
+      () {
+        if (mounted) {
+          setState(() {
+            _addedToCart = false;
+          });
+        }
+      },
+    );
+  }
+
+  @override
   Widget build(
     BuildContext context,
-    WidgetRef ref,
   ) {
     final favorites =
         ref.watch(favoritesProvider);
 
     final isFavorite =
-        favorites.contains(product.id);
+        favorites.contains(widget.product.id);
 
     return Card(
       clipBehavior: Clip.antiAlias,
@@ -34,7 +70,7 @@ class ProductCard extends ConsumerWidget {
             MaterialPageRoute(
               builder: (_) =>
                   ProductDetailScreen(
-                product: product,
+                product: widget.product,
               ),
             ),
           );
@@ -47,13 +83,22 @@ class ProductCard extends ConsumerWidget {
               child: Stack(
                 children: [
                   Positioned.fill(
-                    child: Image.network(
-                      product.imageUrl,
-                      fit: BoxFit.cover,
-                      errorBuilder:
-                          (_, __, ___) =>
-                              const Icon(
-                        Icons.image_not_supported,
+                    child: Hero(
+                      tag:
+                          'product-image-${widget.product.id}',
+                      child: Image.network(
+                        widget.product.imageUrl,
+                        fit: BoxFit.cover,
+                        errorBuilder:
+                            (
+                              context,
+                              error,
+                              stackTrace,
+                            ) {
+                          return const Icon(
+                            Icons.image_not_supported,
+                          );
+                        },
                       ),
                     ),
                   ),
@@ -72,14 +117,13 @@ class ProductCard extends ConsumerWidget {
                                     .notifier,
                               )
                               .toggleFavorite(
-                                product.id,
+                                widget.product.id,
                               );
                         },
                         icon: AnimatedScale(
-                          scale:
-                              isFavorite
-                                  ? 1.2
-                                  : 1.0,
+                          scale: isFavorite
+                              ? 1.2
+                              : 1.0,
                           duration:
                               const Duration(
                             milliseconds: 200,
@@ -89,8 +133,7 @@ class ProductCard extends ConsumerWidget {
                           child: Icon(
                             isFavorite
                                 ? Icons.favorite
-                                : Icons
-                                    .favorite_border,
+                                : Icons.favorite_border,
                             color: isFavorite
                                 ? Colors.red
                                 : Colors.black,
@@ -111,7 +154,7 @@ class ProductCard extends ConsumerWidget {
                     CrossAxisAlignment.start,
                 children: [
                   Text(
-                    product.name,
+                    widget.product.name,
                     maxLines: 1,
                     overflow:
                         TextOverflow.ellipsis,
@@ -124,7 +167,7 @@ class ProductCard extends ConsumerWidget {
                   const SizedBox(height: 4),
 
                   Text(
-                    '\$${product.price.toStringAsFixed(2)}',
+                    '\$${widget.product.price.toStringAsFixed(2)}',
                   ),
 
                   Row(
@@ -135,35 +178,46 @@ class ProductCard extends ConsumerWidget {
                         color: Colors.amber,
                       ),
                       Text(
-                        product.rating
+                        widget.product.rating
                             .toString(),
                       ),
                     ],
                   ),
 
+                  const SizedBox(height: 4),
+
                   SizedBox(
                     width: double.infinity,
-                    child: ElevatedButton(
-                      onPressed: () {
-                        ref
-                            .read(
-                              cartProvider
-                                  .notifier,
-                            )
-                            .addProduct(product);
-
-                        ScaffoldMessenger.of(
-                          context,
-                        ).showSnackBar(
-                          const SnackBar(
-                            content: Text(
-                              'Added to cart',
-                            ),
-                          ),
+                    child: AnimatedSwitcher(
+                      duration:
+                          const Duration(
+                        milliseconds: 250,
+                      ),
+                      transitionBuilder:
+                          (child, animation) {
+                        return ScaleTransition(
+                          scale: animation,
+                          child: child,
                         );
                       },
-                      child: const Text(
-                        'Add to cart',
+                      child:
+                          ElevatedButton.icon(
+                        key: ValueKey(
+                          _addedToCart,
+                        ),
+                        onPressed: _addedToCart
+                            ? null
+                            : _addToCart,
+                        icon: Icon(
+                          _addedToCart
+                              ? Icons.check
+                              : Icons.shopping_cart,
+                        ),
+                        label: Text(
+                          _addedToCart
+                              ? 'Added!'
+                              : 'Add to cart',
+                        ),
                       ),
                     ),
                   ),
