@@ -10,7 +10,7 @@ final userProfileProvider =
     return const UserProfile(
       name: 'JosTech',
       email: 'jostech@gmail.com',
-      avatarUrl:
+      avatarUrl: '' 
           // 'https://i.pravatar.cc/300',
     );
   },
